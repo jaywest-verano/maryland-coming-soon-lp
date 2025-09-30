@@ -9,20 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 type Location = {
   value: string; // URL-friendly slug
   label: string; // Display name
+  date: string; // Opening date
 };
 
-// The Illinois locations
-const ilLocations: Location[] = [
-  { value: "aurora", label: "Aurora" },
-  { value: "chicago-pilsen", label: "Chicago (Pilsen)" },
-  { value: "chicago-rogers-park", label: "Chicago (Rogers Park)" },
-  { value: "chicago-west-loop", label: "Chicago (West Loop)" },
-  { value: "evanston", label: "Evanston" },
-  { value: "highland-park", label: "Highland Park" },
-  { value: "lombard", label: "Lombard" },
-  { value: "naperville", label: "Naperville" },
-  { value: "prospect-heights", label: "Prospect Heights" },
-  { value: "st-charles", label: "St. Charles" },
+// The Maryland locations with opening dates
+const mdLocations: Location[] = [
+  { value: "elkridge", label: "Elkridge", date: "Tuesday, October 14th" },
+  { value: "germantown", label: "Germantown", date: "Tuesday, October 21st" },
+  { value: "pasadena", label: "Pasadena", date: "Tuesday, October 21st" },
+  { value: "towson", label: "Towson", date: "Tuesday, October 21st" },
 ];
 
 function LocationSelectorContent() {
@@ -68,8 +63,7 @@ function LocationSelectorContent() {
         <Card className="w-full bg-white border-0 shadow-none">
           <CardHeader className="text-center pt-2 px-0">
             <CardTitle className="font-jost text-base font-bold text-gray-900 pb-2 px-2">
-              Illinois, your new Zen Leaf shopping experience begins August
-              12th.
+              Maryland, your new Zen Leaf shopping experience begins in October.
             </CardTitle>
             <p className="font-bold pt-2 border-t border-black text-sm">
               Choose your preferred location:
@@ -77,7 +71,7 @@ function LocationSelectorContent() {
           </CardHeader>
           <CardContent className="px-2 pt-0">
             <div className="grid grid-cols-1 gap-3">
-              {ilLocations.map((location) => (
+              {mdLocations.map((location) => (
                 <Button
                   key={location.value}
                   variant="default"
@@ -85,7 +79,10 @@ function LocationSelectorContent() {
                   className="font-sans w-full transform whitespace-normal rounded bg-black py-4 text-sm text-white shadow-sm transition-all hover:bg-gray-900 hover:shadow-md active:scale-95"
                   onClick={() => handleLocationClick(location.value)}
                 >
-                  {location.label}
+                  <div className="flex flex-col items-start w-full">
+                    <span className="font-semibold">{location.label}</span>
+                    <span className="text-xs opacity-90">{location.date}</span>
+                  </div>
                 </Button>
               ))}
             </div>
