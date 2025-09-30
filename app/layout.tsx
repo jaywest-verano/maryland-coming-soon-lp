@@ -20,8 +20,8 @@ const afacad = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Illinois Zen Leaf - Select Location",
-  description: "Choose your Illinois Zen Leaf dispensary location to continue.",
+  title: "Maryland Zen Leaf - Select Location",
+  description: "Choose your Maryland Zen Leaf dispensary location to continue.",
   generator: 'v0.dev',
   icons: {
     icon: [
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: "Illinois Zen Leaf - Select Location",
-    description: "Choose your Illinois Zen Leaf dispensary location to continue.",
+    title: "Maryland Zen Leaf - Select Location",
+    description: "Choose your Maryland Zen Leaf dispensary location to continue.",
     url: "https://zenleafdispensaries.com/",
     siteName: "Zen Leaf Dispensaries",
     images: [
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Illinois Zen Leaf - Select Location",
-    description: "Choose your Illinois Zen Leaf dispensary location to continue.",
+    title: "Maryland Zen Leaf - Select Location",
+    description: "Choose your Maryland Zen Leaf dispensary location to continue.",
     images: ['/zen-leaf-og.jpg'],
   },
 }

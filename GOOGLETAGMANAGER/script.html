@@ -1,5 +1,5 @@
 <script>
-  // Illinois store list with launch dates and city labels
+  // Maryland store list with launch dates and city labels
   var stores = [
     { name: "highland-park", label: "Highland Park", url: "/locations/highland-park/menu", redirect: "https://zenleafdispensaries.com/locations/highland-park/recreational-menu", date: "August 12th" },
     { name: "evanston", label: "Evanston", url: "/locations/evanston/menu", redirect: "https://zenleafdispensaries.com/locations/evanston/recreational-menu", date: "August 12th" },
@@ -20,7 +20,7 @@
       var div = document.createElement("div");
       div.innerHTML =
         '<div id="display-new-zenleaf-header" class="zenleaf-header">' +
-          '<a href="https://zenleafdispensaries.com/state-resources/illinois/">' +
+          '<a href="https://zenleafdispensaries.com/state-resources/Maryland/">' +
             '<img src="https://zenleafdispensaries.com/assets/images/zen-leaf-logo-with-text-white-1.svg" alt="Zen Leaf Logo" class="zenleaf-header-logo">' +
           '</a>' +
         '</div>';
@@ -263,11 +263,11 @@
           main.style.display = "block";
           // Try to get store from slug in URL
           var store = getStoreFromSlugInPath(href);
-          var city = store ? store.label : "Illinois";
+          var city = store ? store.label : "Maryland";
           var date = store ? store.date : null;
           var headline = date
             ? city + ', your new Zen Leaf shopping experience begins ' + date + '.'
-            : 'Illinois, your new Zen Leaf shopping experience begins soon.';
+            : 'Maryland, your new Zen Leaf shopping experience begins soon.';
 
           var wrap = document.createElement("div");
           wrap.innerHTML =
@@ -307,7 +307,7 @@
     // 2. Store menu redirect page
     else {
       var foundStore = getStoreFromUrl(href);
-      if (foundStore && !document.getElementById("replace-content-for-illinois")) {
+      if (foundStore && !document.getElementById("replace-content-for-Maryland")) {
         hideHeaders();
         var maincontent = document.getElementById("maincontent");
         if (maincontent) {
@@ -315,9 +315,9 @@
           var date = foundStore.date;
           var headline = date
             ? city + ', your new Zen Leaf shopping experience begins ' + date + '.'
-            : 'Illinois, your new Zen Leaf shopping experience begins soon.';
+            : 'Maryland, your new Zen Leaf shopping experience begins soon.';
           maincontent.innerHTML =
-            '<div id="replace-content-for-illinois" class="main-inner-content2">' +
+            '<div id="replace-content-for-Maryland" class="main-inner-content2">' +
               '<div class="banner-image"></div>' +
               '<div class="main-inner-content2-box">' +
                 '<p style="margin-top:0;">Thanks for creating your account,</p>' +
