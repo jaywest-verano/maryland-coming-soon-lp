@@ -1,0 +1,335 @@
+<script>
+  // Illinois store list with launch dates and city labels
+  var stores = [
+    { name: "highland-park", label: "Highland Park", url: "/locations/highland-park/menu", redirect: "https://zenleafdispensaries.com/locations/highland-park/recreational-menu", date: "August 12th" },
+    { name: "evanston", label: "Evanston", url: "/locations/evanston/menu", redirect: "https://zenleafdispensaries.com/locations/evanston/recreational-menu", date: "August 12th" },
+    { name: "chicago-pilsen", label: "Chicago (Pilsen)", url: "/locations/chicago-pilsen/menu", redirect: "https://zenleafdispensaries.com/locations/chicago-pilsen/recreational-menu", date: "August 19th" },
+    { name: "chicago-rogers-park", label: "Chicago (Rogers Park)", url: "/locations/chicago-rogers-park/menu", redirect: "https://zenleafdispensaries.com/locations/chicago-rogers-park/recreational-menu", date: "August 19th" },
+    { name: "st-charles", label: "St. Charles", url: "/locations/st-charles/menu", redirect: "https://zenleafdispensaries.com/locations/st-charles/recreational-menu", date: "August 19th" },
+    { name: "aurora", label: "Aurora", url: "/locations/aurora/menu", redirect: "https://zenleafdispensaries.com/locations/aurora/recreational-menu", date: "August 19th" },
+    { name: "lombard", label: "Lombard", url: "/locations/lombard/menu", redirect: "https://zenleafdispensaries.com/locations/lombard/recreational-menu", date: "August 20th" },
+    { name: "chicago-west-loop", label: "Chicago (West Loop)", url: "/locations/chicago-west-loop/menu", redirect: "https://zenleafdispensaries.com/locations/chicago-west-loop/recreational-menu", date: "August 20th" },
+    { name: "naperville", label: "Naperville", url: "/locations/naperville/menu", redirect: "https://zenleafdispensaries.com/locations/naperville/recreational-menu", date: "August 20th" },
+    { name: "prospect-heights", label: "Prospect Heights", url: "/locations/prospect-heights/menu", redirect: "https://zenleafdispensaries.com/locations/prospect-heights/recreational-menu", date: "August 20th" }
+  ];
+
+  // Utility: Hide default headers and show custom Zen Leaf header
+  function hideHeaders() {
+    if (!document.getElementById("display-new-zenleaf-header")) {
+      var header = document.querySelector("header");
+      var div = document.createElement("div");
+      div.innerHTML =
+        '<div id="display-new-zenleaf-header" class="zenleaf-header">' +
+          '<a href="https://zenleafdispensaries.com/state-resources/illinois/">' +
+            '<img src="https://zenleafdispensaries.com/assets/images/zen-leaf-logo-with-text-white-1.svg" alt="Zen Leaf Logo" class="zenleaf-header-logo">' +
+          '</a>' +
+        '</div>';
+      var prev = header ? header.previousElementSibling : null;
+      if (prev) {
+        prev.style.display = "none";
+        prev.parentNode.insertBefore(div, prev);
+      } else if (header) {
+        header.parentNode.insertBefore(div, header);
+      }
+      // Hide the original header via CSS
+      var style = document.createElement("style");
+      style.textContent = "header { display:none !important; }";
+      document.head.appendChild(style);
+      // Hide the fixed footer if present
+      var footer = document.querySelector('[data-portal="fixedFooter"]');
+      if (footer) footer.style.display = "none";
+    }
+  }
+
+  // Utility: Extract email parameter from URL (use 'e' param only, no session storage)
+  function handleEmailParam() {
+    var emailParam = null;
+    var search = window.location.search;
+    if (search && search.length > 1) {
+      // Use URLSearchParams for robust parsing and decoding
+      try {
+        var params = new URLSearchParams(search);
+        if (params.has("e")) {
+          emailParam = params.get("e");
+        }
+      } catch (e) {
+        // fallback for older browsers
+        var pairs = search.substring(1).split("&");
+        for (var i = 0; i < pairs.length; i++) {
+          var pair = pairs[i].split("=");
+          var key = decodeURIComponent(pair[0]);
+          if (key === "e") {
+            emailParam = pair.length > 1 ? decodeURIComponent(pair[1].replace(/\+/g, " ")) : "";
+            break;
+          }
+        }
+      }
+    }
+    if (emailParam && emailParam.replace(/^\s+|\s+$/g, '') !== '') {
+      // Basic email validation
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (emailRegex.test(emailParam)) {
+        prePopulateEmail(emailParam);
+      }
+    }
+  }
+
+  // Utility: Pre-populate email input field with polling, but never overwrite a non-empty value
+  function prePopulateEmail(email) {
+    var attempts = 0;
+    var maxAttempts = 50; // Try for 5 seconds (50 * 100ms)
+    function tryPopulate() {
+      var emailInput = null;
+      var inputs = document.getElementsByTagName('input');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].id && inputs[i].id.indexOf("email-") === 0) {
+          emailInput = inputs[i];
+          break;
+        }
+      }
+      if (emailInput) {
+        // Only set if empty or whitespace
+        if (!emailInput.value || emailInput.value.replace(/^\s+|\s+$/g, '') === '') {
+          emailInput.value = email;
+        }
+        // If the field is now non-empty, stop polling
+        if (emailInput.value && emailInput.value.replace(/^\s+|\s+$/g, '') !== '') {
+          return true;
+        }
+      }
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(tryPopulate, 100);
+      }
+      return false;
+    }
+    tryPopulate();
+  }
+
+  // Utility: Inject styles only if the page matches the pattern
+  function injectZenLeafStyles() {
+    if (document.getElementById('zenleaf-styles')) return;
+
+    var href = window.location.href;
+    // Match: coming soon page or any of the store menu redirect pages
+    var isComingSoon = href.indexOf("new-store-experience-coming-soon") !== -1;
+    var isStoreMenu = false;
+    for (var i = 0; i < stores.length; i++) {
+      if (
+        href.length >= stores[i].url.length &&
+        (href.lastIndexOf(stores[i].url, href.length - stores[i].url.length) === href.length - stores[i].url.length ||
+         href.lastIndexOf(stores[i].url + "/", href.length - (stores[i].url.length + 1)) === href.length - (stores[i].url.length + 1))
+      ) {
+        isStoreMenu = true;
+        break;
+      }
+    }
+
+    if (isComingSoon || isStoreMenu) {
+      var style = document.createElement('style');
+      style.id = 'zenleaf-styles';
+      style.textContent =
+        ".zenleaf-header {" +
+          "display: flex;" +
+          "justify-content: center;" +
+          "align-items: center;" +
+          "height: 77px;" +
+          "background: black;" +
+        "}" +
+        ".zenleaf-header-logo {" +
+          "width: 200px;" +
+          "height: 30px;" +
+        "}" +
+        ".main-inner-content {" +
+          "box-sizing: border-box;" +
+          "width: 90%;" +
+          "margin: auto;" +
+          "max-width: 1360px;" +
+          "text-align: center;" +
+          "border: 1px solid black;" +
+          "border-radius: 13px;" +
+          "margin-top: 24px;" +
+          "padding: 15px;" +
+        "}" +
+        "#maincontent h3 {" +
+          "font-size: 18px;" +
+          "margin-bottom: 4px;" +
+          "margin-top: 0;" +
+          "text-transform: uppercase;" +
+          "text-align: center;" +
+        "}" +
+        "#maincontent h2 {" +
+          "text-align: center !important;" +
+        "}" +
+        ".main-inner-content p {" +
+          "font-size: 20px;" +
+          "margin-bottom: 10px;" +
+        "}" +
+        ".redirect-link {" +
+          "background: #008000;" +
+          "color: #fff;" +
+          "padding: 10px 20px;" +
+          "text-decoration: none;" +
+          "font-size: 24px;" +
+          "font-weight: 600;" +
+          "text-align: center;" +
+          "display: inline-block;" +
+          "margin-top: 20px;" +
+          "border-radius: 4px;" +
+        "}" +
+        ".main-inner-content2 {" +
+          "box-sizing: border-box;" +
+          "width: 90%;" +
+          "margin: auto;" +
+          "max-width: 1360px;" +
+          "text-align: center;" +
+          "padding: 45px 0;" +
+        "}" +
+        ".main-inner-content2 p {" +
+          "font-size: 20px;" +
+          "margin-bottom: 10px;" +
+        "}" +
+        ".main-inner-content2-box {" +
+          "border: 2px solid #252e19;" +
+          "border-radius: 13px;" +
+          "padding: 30px;" +
+        "}" +
+        ".banner-image {" +
+          "display: none;" +
+          "width: 100%;" +
+          "background-image: url('https://admin.zenleafdispensaries.com/wp-content/uploads/2025/05/ZL_Sweed_Banner_Mobile.png');" +
+          "background-size: cover;" +
+          "background-position: center;" +
+          "background-repeat: no-repeat;" +
+          "aspect-ratio: 7/3;" +
+          "margin-bottom: 30px;" +
+          "border-radius: 10px;" +
+        "}" +
+        "@media (min-width:600px) {" +
+          ".banner-image {" +
+            "background-image: url('https://admin.zenleafdispensaries.com/wp-content/uploads/2025/05/ZL_Sweed_Banner_Desktop.png');" +
+            "aspect-ratio: 17/3;" +
+          "}" +
+        "}";
+      document.head.appendChild(style);
+    }
+  }
+
+  // Utility: Get store info from URL (returns store object or null)
+  function getStoreFromUrl(href) {
+    for (var i = 0; i < stores.length; i++) {
+      var url = stores[i].url;
+      if (
+        (href.length >= url.length && href.lastIndexOf(url, href.length - url.length) === href.length - url.length) ||
+        (href.length >= url.length + 1 && href.lastIndexOf(url + "/", href.length - (url.length + 1)) === href.length - (url.length + 1))
+      ) {
+        return stores[i];
+      }
+    }
+    return null;
+  }
+
+  // Utility: Get store info from slug in URL path (for coming soon page)
+  function getStoreFromSlugInPath(href) {
+    // Try to extract slug from /locations/{slug}/ or /locations/{slug}/menu
+    var match = href.match(/\/locations\/([^\/?#]+)(?:\/menu)?/i);
+    if (match && match[1]) {
+      var slug = match[1].toLowerCase();
+      for (var i = 0; i < stores.length; i++) {
+        if (stores[i].name === slug) {
+          return stores[i];
+        }
+      }
+    }
+    return null;
+  }
+
+  // Main script logic
+  function runScriptInitilize() {
+    injectZenLeafStyles();
+
+    var href = window.location.href;
+
+    // Handle email parameter (from 'e' param in URL)
+    handleEmailParam();
+
+    // 1. Coming soon page
+    if (href.indexOf("new-store-experience-coming-soon") !== -1) {
+      if (!document.getElementById("new-store-experience-coming-soon")) {
+        hideHeaders();
+
+        var main = document.getElementById("maincontent");
+        if (main) {
+          main.style.display = "block";
+          // Try to get store from slug in URL
+          var store = getStoreFromSlugInPath(href);
+          var city = store ? store.label : "Illinois";
+          var date = store ? store.date : null;
+          var headline = date
+            ? city + ', your new Zen Leaf shopping experience begins ' + date + '.'
+            : 'Illinois, your new Zen Leaf shopping experience begins soon.';
+
+          var wrap = document.createElement("div");
+          wrap.innerHTML =
+            '<div id="new-store-experience-coming-soon" class="main-inner-content">' +
+              '<h4 style="margin:0;line-height:28px;font-size:24px;"><b>' + headline + '</b></h4>' +
+            '</div>';
+          main.insertBefore(wrap, main.firstChild);
+
+          var h2 = main.querySelector ? main.querySelector("h2") : null;
+          if (h2) {
+            var h3 = document.createElement("h3");
+            h3.innerHTML = "Be first in line.";
+            h2.parentNode.insertBefore(h3, h2);
+            h2.innerHTML = "Create your account";
+          }
+        }
+        var footer = document.querySelector('[data-portal="fixedFooter"]');
+        if (footer) footer.style.display = "none";
+
+        // Remove banner on navigation
+        (function() {
+          var origPush = history.pushState, origReplace = history.replaceState;
+          function removeBanner() {
+            runScriptInitilize();
+            var el = document.getElementById("new-store-experience-coming-soon");
+            if (el) el.parentNode.removeChild(el);
+          }
+          history.pushState = function () { origPush.apply(this, arguments); removeBanner(); };
+          history.replaceState = function () { origReplace.apply(this, arguments); removeBanner(); };
+          window.addEventListener("popstate", function() { removeBanner(); });
+        })();
+
+        // Re-populate email field after DOM changes
+        setTimeout(function() { handleEmailParam(); }, 500);
+      }
+    }
+    // 2. Store menu redirect page
+    else {
+      var foundStore = getStoreFromUrl(href);
+      if (foundStore && !document.getElementById("replace-content-for-illinois")) {
+        hideHeaders();
+        var maincontent = document.getElementById("maincontent");
+        if (maincontent) {
+          var city = foundStore.label;
+          var date = foundStore.date;
+          var headline = date
+            ? city + ', your new Zen Leaf shopping experience begins ' + date + '.'
+            : 'Illinois, your new Zen Leaf shopping experience begins soon.';
+          maincontent.innerHTML =
+            '<div id="replace-content-for-illinois" class="main-inner-content2">' +
+              '<div class="banner-image"></div>' +
+              '<div class="main-inner-content2-box">' +
+                '<p style="margin-top:0;">Thanks for creating your account,</p>' +
+                '<p>' + headline + '</p>' +
+                '<p style="margin-top:25px;"><b>In the meantime...</b></p>' +
+                '<a href="' + foundStore.redirect + '" class="redirect-link">Shop our current menu</a>' +
+              '</div>' +
+            '</div>';
+        }
+      }
+    }
+  }
+
+  runScriptInitilize();
+</script>
