@@ -79,10 +79,7 @@ function LocationSelectorContent() {
                   className="font-sans w-full transform whitespace-normal rounded bg-black py-4 text-sm text-white shadow-sm transition-all hover:bg-gray-900 hover:shadow-md active:scale-95"
                   onClick={() => handleLocationClick(location.value)}
                 >
-                  <div className="flex flex-col items-start w-full">
-                    <span className="font-semibold">{location.label}</span>
-                    <span className="text-xs opacity-90">{location.date}</span>
-                  </div>
+                  {location.label}
                 </Button>
               ))}
             </div>
